@@ -156,16 +156,6 @@ endif
 
 # Check for the correct version of java
 java_version := $(shell java -version 2>&1 | head -n 1 | grep '^java .*[ "]1\.[67][\. "$$]')
-ifneq ($(shell java -version 2>&1 | grep -i openjdk),)
-$(warning ************************************************************)
-$(warning AOSP errors out when using OpenJDK, saying you need to use)
-$(warning Java SE 1.6 instead.)
-$(warning A build with OpenJDK seems to work fine though - if you)
-$(warning run into any Java errors, you may want to try using the)
-$(warning version required by AOSP though.)
-$(warning ************************************************************)
-#java_version :=
-endif
 ifeq ($(strip $(java_version)),)
 $(info ************************************************************)
 $(info You are attempting to build with the incorrect version)
@@ -180,7 +170,7 @@ $(info ************************************************************)
 endif
 
 # Check for the correct version of javac
-javac_version := $(shell javac -version 2>&1 | head -n 1 | grep '[ "]1\.6[\. "$$]')
+javac_version := $(shell javac -version 2>&1 | head -n 1 | grep '[ "]1\.[67][\. "$$]')
 ifeq ($(strip $(javac_version)),)
 $(info ************************************************************)
 $(info You are attempting to build with the incorrect version)
