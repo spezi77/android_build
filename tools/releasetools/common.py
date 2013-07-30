@@ -322,12 +322,19 @@ def BuildBootableImage(sourcedir, fs_config_file, info_dict=None):
     cmd.append(img.name)
 
   else:
-    cmd = ["mkbootimg", "--kernel", os.path.join(sourcedir, "kernel")]
+    # use MKBOOTIMG from environ, or "mkbootimg" if empty or not set
+    mkbootimg = os.getenv('MKBOOTIMG') or "mkbootimg"
+    cmd = [mkbootimg, "--kernel", os.path.join(sourcedir, "kernel")]
 
-  fn = os.path.join(sourcedir, "cmdline")
-  if os.access(fn, os.F_OK):
-    cmd.append("--cmdline")
-    cmd.append(open(fn).read().rstrip("\n"))
+    fn = os.path.join(sourcedir, "second")
+    if os.access(fn, os.F_OK):
+      cmd.append("--second")
+      cmd.append(fn)
+
+    fn = os.path.join(sourcedir, "cmdline")
+    if os.access(fn, os.F_OK):
+      cmd.append("--cmdline")
+      cmd.append(open(fn).read().rstrip("\n"))
 
     fn = os.path.join(sourcedir, "base")
     if os.access(fn, os.F_OK):
@@ -363,11 +370,6 @@ def BuildBootableImage(sourcedir, fs_config_file, info_dict=None):
     args = info_dict.get("mkbootimg_args", None)
     if args and args.strip():
       cmd.extend(shlex.split(args))
-
-    fn = os.path.join(sourcedir, "ramdiskaddr")
-    if os.access(fn, os.F_OK):
-      cmd.append("--ramdiskaddr")
-      cmd.append(open(fn).read().rstrip("\n"))
 
     cmd.extend(["--ramdisk", ramdisk_img.name,
                 "--output", img.name])
