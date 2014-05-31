@@ -67,16 +67,20 @@ $(combo_2nd_arch_prefix)TARGET_STRIP := $($(combo_2nd_arch_prefix)TARGET_TOOLS_P
 
 $(combo_2nd_arch_prefix)TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
 
-$(combo_2nd_arch_prefix)TARGET_arm_CFLAGS :=    -O2 \
-                        -fomit-frame-pointer \
-                        -fstrict-aliasing    \
-                        -funswitch-loops
+# This is where magic starts
 
+# Target ARM. Usually you don't need to change anything here
+$(combo_2nd_arch_prefix)TARGET_arm_CFLAGS := -O3 -DNDEBUG -fstrict-aliasing -fivopts -ffunction-sections -fdata-sections -funswitch-loops -frename-registers -fomit-frame-pointer -ftracer -Wno-error=unused-parameter -Wno-error=maybe-uninitialized
+
+# Target THUMB, major portion of Android. Please change -O3 back to -Os in case of issues
 # Modules can choose to compile some source as thumb.
-$(combo_2nd_arch_prefix)TARGET_thumb_CFLAGS :=  -mthumb \
-                        -Os \
-                        -fomit-frame-pointer \
-                        -fno-strict-aliasing
+$(combo_2nd_arch_prefix)TARGET_thumb_CFLAGS :=  -mthumb -O3 -DNDEBUG -fivopts -ffunction-sections -fdata-sections -funswitch-loops -fomit-frame-pointer -ftracer -Wno-error=unused-parameter -Wno-error=maybe-uninitialized
+
+# Release CFLAGS. Usually you don't need to change anything here
+$(combo_2nd_arch_prefix)TARGET_RELEASE_CFLAGS := -O3 -DNDEBUG -fno-strict-aliasing -fivopts -ffunction-sections -fdata-sections -funswitch-loops -frename-registers -fomit-frame-pointer -ftracer -Wno-error=unused-parameter -Wno-error=maybe-uninitialized
+
+# Release CPPFLAGS. Usually you don't need to change anything here
+$(combo_2nd_arch_prefix)TARGET_GLOBAL_CPPFLAGS += -O3 -DNDEBUG -fivopts -ffunction-sections -fdata-sections -funswitch-loops -frename-registers -fomit-frame-pointer -ftracer -Wno-error=unused-parameter -Wno-error=maybe-uninitialized
 
 # Set FORCE_ARM_DEBUGGING to "true" in your buildspec.mk
 # or in your environment to force a full arm build, even for
@@ -141,15 +145,6 @@ $(combo_2nd_arch_prefix)TARGET_GLOBAL_LDFLAGS += \
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -mthumb-interwork
 
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CPPFLAGS += -fvisibility-inlines-hidden
-
-# More flags/options can be added here
-$(combo_2nd_arch_prefix)TARGET_RELEASE_CFLAGS := \
-			-DNDEBUG \
-			-g \
-			-Wstrict-aliasing=2 \
-			-fgcse-after-reload \
-			-frerun-cse-after-loop \
-			-frename-registers
 
 libc_root := bionic/libc
 libm_root := bionic/libm
