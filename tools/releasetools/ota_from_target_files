@@ -526,6 +526,11 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   script.Print("#    \/_____/\/_/ \/_/\/_/\/_/\/_____/#");
   script.Print("#                                     #");
   script.Print("#######################################");
+  script.Print("");
+  script.Print("---------------------------------------");
+  script.Print(" Android 4.4.4 for your HTC Desire");
+  script.Print(" Homemade version by spezi77")
+  script.Print("---------------------------------------");
 
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
@@ -538,6 +543,9 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
 #  script.UnpackPackageDir("recovery", "/system")
   script.Print("Extracting /system")
   script.UnpackPackageDir("system", "/system")
+  script.Mount("/data")
+  script.Print("Extracting /data")  
+  script.UnpackPackageDir("data", "/data")
 
   symlinks = CopySystemFiles(input_zip, output_zip)
   script.Print("Symlinking")
@@ -549,6 +557,10 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
 
   Item.GetMetadata(input_zip)
   Item.Get("system").SetPermissions(script)
+  
+  #Set permissions for all extra apps on Userdata
+  script.SetPermissionsRecursive("/data", 0, 0, 0771, 0644, "u:object_r:system_file:s0", "0x0")
+  script.SetPermissionsRecursive("/data/app", 0, 0, 0771, 0644, "u:object_r:system_file:s0", "0x0")
 
   common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
