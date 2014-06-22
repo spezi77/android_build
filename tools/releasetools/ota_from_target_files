@@ -572,7 +572,7 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
 
   script.ShowProgress(0.2, 10)
   script.Print("Flashing boot.img")
-  script.WriteRawImage("/boot", "boot.img")
+  script.WriteRawImage("/boot", "/boot.img")
 
   script.ShowProgress(0.1, 0)
   script.Print("Enjoy OMNI ROM!");
