@@ -505,6 +505,21 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
 
   if OPTIONS.wipe_user_data:
     script.FormatPartition("/data")
+  script.Print("     )             )           )         ");
+  script.Print("  ( /(       )  ( /(  (     ( /( (       ");
+  script.Print("  )\())(  ( /(  )\()) )\    )\()))\ )    ");
+  script.Print(" ((_)\ )\ )\())((_)((((_)( ((_)\(()/(    ");
+  script.Print("(_(((_)(_)_))/(_)((_)\ _ )\ _((_)/(_))_  ");
+  script.Print("| |/ / (_) |_ | |/ /(_)_\(_) \| (_)) __| ");
+  script.Print("| ' <  | |  _|| ' <  / _ \ | .` | | (_ | ");
+  script.Print("|_|\_\ |_|\__||_|\_\/_/ \_\|_|\_|  \___| ");
+  script.Print("");                                         
+  script.Print("-----------------------------------------");
+  script.Print(" Android 4.4.4 for your HTC Desire");
+  script.Print(" CM-11.0 UNOFFICIAL kanged by spezi77");
+  script.Print("-----------------------------------------");  
+  script.Print("");
+  script.Print("Installing KitKANG");
 
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
@@ -513,6 +528,8 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   script.Mount("/system")
   script.UnpackPackageDir("recovery", "/system")
   script.UnpackPackageDir("system", "/system")
+  script.Mount("/data")
+  script.UnpackPackageDir("data", "/data")
 
   symlinks = CopySystemFiles(input_zip, output_zip)
   script.MakeSymlinks(symlinks)
@@ -526,6 +543,10 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
 
   Item.GetMetadata(input_zip)
   Item.Get("system").SetPermissions(script)
+
+  #Set permissions for all extra apps on Userdata
+  script.SetPermissionsRecursive("/data", 0, 0, 0771, 0644, "u:object_r:system_file:s0", "0x0")
+  script.SetPermissionsRecursive("/data/app", 0, 0, 0771, 0644, "u:object_r:system_file:s0", "0x0")
 
   common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
