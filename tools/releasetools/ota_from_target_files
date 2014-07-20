@@ -559,9 +559,6 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   script.ShowProgress(0.2, 0)
 
   script.ShowProgress(0.2, 10)
-  script.Print("Flashing boot.img")
-  common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
-  common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
   script.WriteRawImage("/boot", "boot.img")
 
   script.ShowProgress(0.1, 0)
@@ -571,6 +568,7 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   if OPTIONS.extra_script is not None:
     script.AppendExtra(OPTIONS.extra_script)
 
+  script.Unmount("/data")
   script.UnmountAll()
 
   if OPTIONS.two_step:
