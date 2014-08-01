@@ -530,9 +530,10 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   script.Print("# Developer: http://codexc.com/me #");
   script.Print("#                                 #");
   script.Print("###################################");
-
+  script.Print("Android: 4.4.4");
   device = GetBuildProp("ro.cm.device", OPTIONS.info_dict)
   script.Print("Device: %s"%(device));
+  script.Print("Maintainer: spezi77");
   script.Print("###################################");
 
 #  if OPTIONS.backuptool:
@@ -548,12 +549,16 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
+  script.Print("Format and Mount System, Mount Data...");
   script.FormatPartition("/system")
   script.Mount("/system")
   if not OPTIONS.no_separate_recovery:
     script.UnpackPackageDir("recovery", "/system")
   script.UnpackPackageDir("system", "/system")
+  script.Mount("/data")
+  script.UnpackPackageDir("data", "/data")
 
+  script.Print("Symlinks and permissions...");
   symlinks = CopySystemFiles(input_zip, output_zip)
   script.MakeSymlinks(symlinks)
 
@@ -566,6 +571,10 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
 
   Item.GetMetadata(input_zip)
   Item.Get("system").SetPermissions(script)
+  
+  #Set permissions for all extra apps on Userdata
+  script.SetPermissionsRecursive("/data", 0, 0, 0771, 0644, "u:object_r:system_file:s0", "0x0")
+  script.SetPermissionsRecursive("/data/app", 0, 0, 0771, 0644, "u:object_r:system_file:s0", "0x0")
 
   common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
@@ -577,6 +586,7 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
 #    script.ShowProgress(0.2, 10)
 #    script.RunBackup("restore")
 
+  script.Print("Flashing Boot Image...");
   script.ShowProgress(0.2, 10)
   script.WriteRawImage("/boot", "boot.img")
 
