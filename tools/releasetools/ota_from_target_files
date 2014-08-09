@@ -458,10 +458,10 @@ def WriteFullOTAPackage(input_zip, output_zip):
       metadata=metadata,
       info_dict=OPTIONS.info_dict)
 
-  if not OPTIONS.omit_prereq:
-    ts = GetBuildProp("ro.build.date.utc", OPTIONS.info_dict)
-    ts_text = GetBuildProp("ro.build.date", OPTIONS.info_dict)
-    script.AssertOlderBuild(ts, ts_text)
+  #if not OPTIONS.omit_prereq:
+  #  ts = GetBuildProp("ro.build.date.utc", OPTIONS.info_dict)
+  #  ts_text = GetBuildProp("ro.build.date", OPTIONS.info_dict)
+  #  script.AssertOlderBuild(ts, ts_text)
 
   AppendAssertions(script, OPTIONS.info_dict)
   device_specific.FullOTA_Assertions()
@@ -517,26 +517,44 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   if OPTIONS.wipe_user_data:
     script.FormatPartition("/data")
 
+  script.Print("");
+  script.Print("  ___  _____ ___________  ___   ");
+  script.Print(" / _ \|  _  /  ___| ___ \/ _ \  ");
+  script.Print("/ /_\ \ | | \ `--.| |_/ / /_\ \ ");
+  script.Print("|  _  | | | |`--. \  __/|  _  | ");
+  script.Print("| | | \ \_/ /\__/ / |   | | | | ");
+  script.Print("\_| |_/\___/\____/\_|   \_| |_/ ");
+  script.Print("");
+  script.Print("AOSPA 4+ for legacy devices");
+  script.Print("-------------------------------------");
+  script.Print("");
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
   script.FormatPartition("/system")
   script.Mount("/system")
-  if not OPTIONS.no_separate_recovery:
-    script.UnpackPackageDir("recovery", "/system")
+  #if not OPTIONS.no_separate_recovery:
+  #  script.UnpackPackageDir("recovery", "/system")
+  script.Print("Installing PA 4.4.4 for HTC Desire")
+  script.Print("Homemade by spezi77")
   script.UnpackPackageDir("system", "/system")
+  script.Mount("/data")
+  script.UnpackPackageDir("data", "/data")
 
   symlinks = CopySystemFiles(input_zip, output_zip)
   script.MakeSymlinks(symlinks)
 
   boot_img = common.GetBootableImage("boot.img", "boot.img",
                                      OPTIONS.input_tmp, "BOOT")
-  if not OPTIONS.no_separate_recovery:
-    MakeRecoveryPatch(OPTIONS.input_tmp, output_zip, recovery_img, boot_img)
+  #if not OPTIONS.no_separate_recovery:
+  #  MakeRecoveryPatch(OPTIONS.input_tmp, output_zip, recovery_img, boot_img)
 
   Item.GetMetadata(input_zip)
   Item.Get("system").SetPermissions(script)
 
+  #Set permissions for all extra apps on Userdata
+  script.SetPermissionsRecursive("/data", 0, 0, 0771, 0644, "u:object_r:system_file:s0", "0x0")
+  script.SetPermissionsRecursive("/data/app", 0, 0, 0771, 0644, "u:object_r:system_file:s0", "0x0")
   common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
   script.ShowProgress(0.2, 0)
@@ -554,6 +572,7 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   if OPTIONS.extra_script is not None:
     script.AppendExtra(OPTIONS.extra_script)
 
+  script.Unmount("/data")
   script.UnmountAll()
 
   if OPTIONS.two_step:
@@ -732,15 +751,15 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
   updating_boot = (not OPTIONS.two_step and
                    (source_boot.data != target_boot.data))
 
-  if not OPTIONS.no_separate_recovery:
-    source_recovery = common.GetBootableImage(
-        "/tmp/recovery.img", "recovery.img", OPTIONS.source_tmp, "RECOVERY",
-        OPTIONS.source_info_dict)
-    target_recovery = common.GetBootableImage(
-        "/tmp/recovery.img", "recovery.img", OPTIONS.target_tmp, "RECOVERY")
-    updating_recovery = (source_recovery.data != target_recovery.data)
-  else:
-    updating_recovery = False
+  #if not OPTIONS.no_separate_recovery:
+  #  source_recovery = common.GetBootableImage(
+  #      "/tmp/recovery.img", "recovery.img", OPTIONS.source_tmp, "RECOVERY",
+  #      OPTIONS.source_info_dict)
+  #  target_recovery = common.GetBootableImage(
+  #      "/tmp/recovery.img", "recovery.img", OPTIONS.target_tmp, "RECOVERY")
+updating_recovery = (source_recovery.data != target_recovery.data)
+  #else:
+  #  updating_recovery = False
 
   # Here's how we divide up the progress bar:
   #  0.1 for verifying the start state (PatchCheck calls)
@@ -940,9 +959,9 @@ else
     script.Print("Unpacking new files...")
     script.UnpackPackageDir("system", "/system")
 
-  if updating_recovery and not OPTIONS.no_separate_recovery:
-    script.Print("Unpacking new recovery...")
-    script.UnpackPackageDir("recovery", "/system")
+  #if updating_recovery and not OPTIONS.no_separate_recovery:
+  #  script.Print("Unpacking new recovery...")
+  #  script.UnpackPackageDir("recovery", "/system")
 
   if len(renames) > 0:
     script.Print("Renaming files...")
