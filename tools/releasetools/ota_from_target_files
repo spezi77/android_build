@@ -503,26 +503,6 @@ def WriteFullOTAPackage(input_zip, output_zip):
   #       set up system to update recovery partition on first boot
   #    complete script normally (allow recovery to mark itself finished and reboot)
 
-  recovery_img = common.GetBootableImage("recovery.img", "recovery.img",
-                                         OPTIONS.input_tmp, "RECOVERY")
-  if OPTIONS.two_step:
-    if not OPTIONS.info_dict.get("multistage_support", None):
-      assert False, "two-step packages not supported by this build"
-    fs = OPTIONS.info_dict["fstab"]["/misc"]
-    assert fs.fs_type.upper() == "EMMC", \
-        "two-step packages only supported on devices with EMMC /misc partitions"
-    bcb_dev = {"bcb_dev": fs.device}
-    common.ZipWriteStr(output_zip, "recovery.img", recovery_img.data)
-    script.AppendExtra("""
-if get_stage("%(bcb_dev)s", "stage") == "2/3" then
-""" % bcb_dev)
-    script.WriteRawImage("/recovery", "recovery.img")
-    script.AppendExtra("""
-set_stage("%(bcb_dev)s", "3/3");
-reboot_now("%(bcb_dev)s", "recovery");
-else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
-""" % bcb_dev)
-
   device_specific.FullOTA_InstallBegin()
 
   CopyInstallTools(output_zip)
@@ -564,8 +544,7 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   script.Print("             .:okKNWWWNKdl'  '          ");
   script.Print("                 ''...`',  +'           ");
   script.Print("                                        ");
-  script.Print("                                        ");
-
+  
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
@@ -574,28 +553,27 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
     script.RunPersist("save")
     script.Unmount("/system")
 
-  script.Print("Formating System...")
   script.FormatPartition("/system")
-  script.Print("Mounting System...")
   script.Mount("/system")
-  if not OPTIONS.no_separate_recovery:
-    script.UnpackPackageDir("recovery", "/system")
-  script.Print("Installing System...")
+  script.Print("Installing Carbonrom 4.4.4 for HTC Desire")
+  script.Print("Homemade by spezi77")
   script.UnpackPackageDir("system", "/system")
+  script.Mount("/data")
+  script.UnpackPackageDir("data", "/data")
   #script.CopyFile("changelog.txt", "/system/etc/")
-  script.Print("Creating Symlinks...") 
-
 
   symlinks = CopySystemFiles(input_zip, output_zip)
   script.MakeSymlinks(symlinks)
 
   boot_img = common.GetBootableImage("boot.img", "boot.img",
                                      OPTIONS.input_tmp, "BOOT")
-  if not OPTIONS.no_separate_recovery:
-    MakeRecoveryPatch(OPTIONS.input_tmp, output_zip, recovery_img, boot_img)
 
   Item.GetMetadata(input_zip)
   Item.Get("system").SetPermissions(script)
+  
+  #Set permissions for all extra apps on Userdata
+  script.SetPermissionsRecursive("/data", 0, 0, 0771, 0644, "u:object_r:system_file:s0", "0x0")
+  script.SetPermissionsRecursive("/data/app", 0, 0, 0771, 0644, "u:object_r:system_file:s0", "0x0")
 
   if OPTIONS.persist:
     script.ShowProgress(0.2, 10)
@@ -618,22 +596,8 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   if OPTIONS.extra_script is not None:
     script.AppendExtra(OPTIONS.extra_script)
 
+  script.Unmount("/data")
   script.UnmountAll()
-
-  if OPTIONS.two_step:
-    script.AppendExtra("""
-set_stage("%(bcb_dev)s", "");
-""" % bcb_dev)
-    script.AppendExtra("else\n")
-    script.WriteRawImage("/boot", "recovery.img")
-    script.AppendExtra("""
-set_stage("%(bcb_dev)s", "2/3");
-reboot_now("%(bcb_dev)s", "");
-endif;
-endif;
-""" % bcb_dev)
-  script.AddToZip(input_zip, output_zip)
-  WriteMetadata(metadata, output_zip)
 
   common.ZipWriteStr(output_zip, "META-INF/org/cyanogenmod/releasekey",
                      ""+input_zip.read("META/releasekey.txt"))
@@ -961,7 +925,7 @@ else
     else:
       print "boot image unchanged; skipping."
 
-  if updating_recovery:
+  if updating_recovery and not OPTIONS.no_separate_recovery:
     # Recovery is generated as a patch using both the boot image
     # (which contains the same linux kernel as recovery) and the file
     # /system/etc/recovery-resource.dat (which contains all the images
@@ -1006,18 +970,12 @@ else
     script.Print("Unpacking new files...")
     script.UnpackPackageDir("system", "/system")
 
-  if updating_recovery and not OPTIONS.no_separate_recovery:
-    script.Print("Unpacking new recovery...")
-    script.UnpackPackageDir("recovery", "/system")
-
   if len(renames) > 0:
     script.Print("Renaming files...")
 
   for src in renames:
     print "Renaming " + src + " to " + renames[src].name
     script.RenameFile(src, renames[src].name)
-
-  script.Print("Symlinks and permissions...")
 
   # Create all the symlinks that don't already exist, or point to
   # somewhere different than what we want.  Delete each symlink before
