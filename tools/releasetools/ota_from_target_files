@@ -503,6 +503,24 @@ def WriteFullOTAPackage(input_zip, output_zip):
   #       set up system to update recovery partition on first boot
   #    complete script normally (allow recovery to mark itself finished and reboot)
 
+  if OPTIONS.two_step:
+    if not OPTIONS.info_dict.get("multistage_support", None):
+      assert False, "two-step packages not supported by this build"
+    fs = OPTIONS.info_dict["fstab"]["/misc"]
+    assert fs.fs_type.upper() == "EMMC", \
+        "two-step packages only supported on devices with EMMC /misc partitions"
+    bcb_dev = {"bcb_dev": fs.device}
+    common.ZipWriteStr(output_zip, "recovery.img", recovery_img.data)
+    script.AppendExtra("""
+if get_stage("%(bcb_dev)s", "stage") == "2/3" then
+""" % bcb_dev)
+    script.WriteRawImage("/recovery", "recovery.img")
+    script.AppendExtra("""
+set_stage("%(bcb_dev)s", "3/3");
+reboot_now("%(bcb_dev)s", "recovery");
+else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
+""" % bcb_dev)
+
   device_specific.FullOTA_InstallBegin()
 
   CopyInstallTools(output_zip)
@@ -544,7 +562,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.Print("             .:okKNWWWNKdl'  '          ");
   script.Print("                 ''...`',  +'           ");
   script.Print("                                        ");
-  
+
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
@@ -598,6 +616,21 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   script.Unmount("/data")
   script.UnmountAll()
+
+  if OPTIONS.two_step:
+    script.AppendExtra("""
+set_stage("%(bcb_dev)s", "");
+""" % bcb_dev)
+    script.AppendExtra("else\n")
+    script.WriteRawImage("/boot", "recovery.img")
+    script.AppendExtra("""
+set_stage("%(bcb_dev)s", "2/3");
+reboot_now("%(bcb_dev)s", "");
+endif;
+endif;
+""" % bcb_dev)
+  script.AddToZip(input_zip, output_zip)
+  WriteMetadata(metadata, output_zip)
 
   common.ZipWriteStr(output_zip, "META-INF/org/cyanogenmod/releasekey",
                      ""+input_zip.read("META/releasekey.txt"))
@@ -925,7 +958,7 @@ else
     else:
       print "boot image unchanged; skipping."
 
-  if updating_recovery and not OPTIONS.no_separate_recovery:
+  if updating_recovery:
     # Recovery is generated as a patch using both the boot image
     # (which contains the same linux kernel as recovery) and the file
     # /system/etc/recovery-resource.dat (which contains all the images
@@ -969,6 +1002,10 @@ else
   if verbatim_targets:
     script.Print("Unpacking new files...")
     script.UnpackPackageDir("system", "/system")
+
+  if updating_recovery and not OPTIONS.no_separate_recovery:
+    script.Print("Unpacking new recovery...")
+    script.UnpackPackageDir("recovery", "/system")
 
   if len(renames) > 0:
     script.Print("Renaming files...")
