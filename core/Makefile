@@ -1554,10 +1554,10 @@ INTERNAL_OTA_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
 $(INTERNAL_OTA_PACKAGE_TARGET): KEY_CERT_PAIR := $(DEFAULT_KEY_CERT_PAIR)
 
-ifneq ($(CUSTOM_BUILD),)
-    $(INTERNAL_OTA_PACKAGE_TARGET): backuptool := true
+ifneq ($(EV_BUILD),)
+    $(INTERNAL_OTA_PACKAGE_TARGET): blockmode := false
 else
-    $(INTERNAL_OTA_PACKAGE_TARGET): backuptool := false
+    $(INTERNAL_OTA_PACKAGE_TARGET): blockmode := true
 endif
 
 ifeq ($(TARGET_OTA_ASSERT_DEVICE),)
@@ -1588,7 +1588,7 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	@echo -e ${PRT_HST}"Package OTA: $@"${CL_RST}
 	MKBOOTIMG=$(BOARD_CUSTOM_BOOTIMG_MK) \
 	$(OTA_FROM_TARGET_SCRIPT) -v \
-	   --block \
+	   --block=$(blockmode) \
 	   -p $(HOST_OUT) \
 	   -k $(KEY_CERT_PAIR) \
 	   --backup=$(backuptool) \
