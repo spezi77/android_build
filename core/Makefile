@@ -1612,11 +1612,15 @@ else
     $(INTERNAL_OTA_PACKAGE_TARGET): mount_by_label := false
 endif
 
+ifneq ($(TARGET_USES_BLOCK_BASED_OTA),false)
+    $(INTERNAL_OTA_PACKAGE_TARGET): block_ota := --block
+endif
+
 $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	@echo -e ${PRT_HST}"Package OTA: $@"${CL_RST}
 	MKBOOTIMG=$(BOARD_CUSTOM_BOOTIMG_MK) \
 	$(OTA_FROM_TARGET_SCRIPT) -v \
-	   $(if $(CUSTOM_BUILD),, --block) \
+	   $(block_ota) \
 	   -p $(HOST_OUT) \
 	   -k $(KEY_CERT_PAIR) \
 	   --backup=$(backuptool) \
