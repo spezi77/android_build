@@ -657,6 +657,14 @@ def WriteFullOTAPackage(input_zip, output_zip):
   common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
 
+  if block_based:
+    script.Mount("/system")
+  script.ValidateSignatures("cleanup")
+  if block_based:
+    script.Unmount("/system")
+
+  device_specific.FullOTA_PostValidate()
+
   if OPTIONS.backuptool:
     script.ShowProgress(0.02, 10)
     if block_based:
