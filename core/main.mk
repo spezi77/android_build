@@ -693,6 +693,12 @@ ifdef FULL_BUILD
   product_MODULES += $(call get-32-bit-modules, $(modules_rest))
   product_MODULES += $(modules_rest)
 
+  # Filter out the removed packages before doing expansion
+  product_MODULES := $(filter-out $(REMOVE_PRODUCT_PACKAGES), $(product_MODULES))
+  ifneq ($(REMOVE_PRODUCT_PACKAGES),)
+    $(warning Packages removed via REMOVE_PRODUCT_PACKAGES: $(REMOVE_PRODUCT_PACKAGES))
+  endif
+
   $(call expand-required-modules,product_MODULES,$(product_MODULES))
 
   product_FILES := $(call module-installed-files, $(product_MODULES))
