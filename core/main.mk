@@ -604,6 +604,13 @@ ifdef FULL_BUILD
   # Filter out the overridden packages before doing expansion
   product_MODULES := $(filter-out $(foreach p, $(product_MODULES), \
       $(PACKAGES.$(p).OVERRIDES)), $(product_MODULES))
+
+  # Filter out the removed packages before doing expansion
+  product_MODULES := $(filter-out $(REMOVE_PRODUCT_PACKAGES), $(product_MODULES))
+  ifneq ($(REMOVE_PRODUCT_PACKAGES),)
+    $(warning Packages removed via REMOVE_PRODUCT_PACKAGES: $(REMOVE_PRODUCT_PACKAGES))
+  endif
+
   $(call expand-required-modules,product_MODULES,$(product_MODULES))
   product_FILES := $(call module-installed-files, $(product_MODULES))
   ifeq (0,1)
