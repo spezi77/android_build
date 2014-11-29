@@ -64,12 +64,9 @@ else
     endif
     ifeq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
         QCOM_DISPLAY_VARIANT := display-legacy
-    else
-        QCOM_DISPLAY_VARIANT := display
-    endif
-    ifeq ($(BOARD_USES_LEGACY_QCOM_MEDIA),true)
         QCOM_MEDIA_VARIANT := media-legacy
     else
+        QCOM_DISPLAY_VARIANT := display
         QCOM_MEDIA_VARIANT := media
     endif
 endif
