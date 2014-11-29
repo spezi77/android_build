@@ -58,18 +58,15 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 else
     # QSD8K doesn't use QCOM_HARDWARE flag
     ifneq ($(filter qsd8k,$(TARGET_BOARD_PLATFORM)),)
-        QCOM_AUDIO_VARIANT := audio-caf
+        QCOM_AUDIO_VARIANT := audio-caf/msm8960
     else
         QCOM_AUDIO_VARIANT := audio
     endif
     ifeq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
         QCOM_DISPLAY_VARIANT := display-legacy
-    else
-        QCOM_DISPLAY_VARIANT := display
-    endif
-    ifeq ($(BOARD_USES_LEGACY_QCOM_MEDIA),true)
         QCOM_MEDIA_VARIANT := media-legacy
     else
+        QCOM_DISPLAY_VARIANT := display
         QCOM_MEDIA_VARIANT := media
     endif
 endif
