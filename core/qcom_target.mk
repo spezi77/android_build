@@ -43,9 +43,12 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
         # Enables legacy repos to be handled
         ifeq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
             QCOM_DISPLAY_VARIANT := display-legacy
-            QCOM_MEDIA_VARIANT := media-legacy
         else
             QCOM_DISPLAY_VARIANT := display-caf/msm8960
+        endif
+        ifeq ($(BOARD_USES_LEGACY_QCOM_MEDIA),true)
+            QCOM_MEDIA_VARIANT := media-legacy
+        else
             QCOM_MEDIA_VARIANT := media-caf/msm8960
         endif
     endif
@@ -59,9 +62,12 @@ else
     endif
     ifeq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
         QCOM_DISPLAY_VARIANT := display-legacy
-        QCOM_MEDIA_VARIANT := media-legacy
     else
         QCOM_DISPLAY_VARIANT := display
+    endif
+    ifeq ($(BOARD_USES_LEGACY_QCOM_MEDIA),true)
+        QCOM_MEDIA_VARIANT := media-legacy
+    else
         QCOM_MEDIA_VARIANT := media
     endif
 endif
