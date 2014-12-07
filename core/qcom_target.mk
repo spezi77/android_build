@@ -25,34 +25,27 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
         qcom_flags += -DQCOM_BSP_LEGACY
     endif
 
-    TARGET_GLOBAL_CFLAGS += $(qcom_flags)
-    TARGET_GLOBAL_CPPFLAGS += $(qcom_flags)
-    CLANG_TARGET_GLOBAL_CFLAGS += $(qcom_flags)
-    CLANG_TARGET_GLOBAL_CPPFLAGS += $(qcom_flags)
+    ifneq ($(filter msm8084,$(TARGET_BOARD_PLATFORM)),)
+        #This is for 8084 based platforms
+        QCOM_AUDIO_VARIANT := audio-caf/msm8084
+        QCOM_DISPLAY_VARIANT := display-caf/msm8084
+        QCOM_MEDIA_VARIANT := media-caf/msm8084
+    else ifneq ($(filter msm8610 msm8226 msm8974,$(TARGET_BOARD_PLATFORM)),)
+        #This is for 8974 based (and B-family) platforms
+        QCOM_AUDIO_VARIANT := audio-caf/msm8974
+        QCOM_DISPLAY_VARIANT := display-caf/msm8974
+        QCOM_MEDIA_VARIANT := media-caf/msm8974
+    else
+        QCOM_AUDIO_VARIANT := audio-caf/msm8960
+        # Enables legacy repos to be handled
+        ifeq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
+            QCOM_DISPLAY_VARIANT := display-legacy
+            QCOM_MEDIA_VARIANT := media-legacy
+        else
+            QCOM_DISPLAY_VARIANT := display-caf/msm8960
+            QCOM_MEDIA_VARIANT := media-caf/msm8960
+        endif
+    endif
 
-    # Multiarch needs these too..
-    2ND_TARGET_GLOBAL_CFLAGS += $(qcom_flags)
-    2ND_TARGET_GLOBAL_CPPFLAGS += $(qcom_flags)
-    2ND_CLANG_TARGET_GLOBAL_CFLAGS += $(qcom_flags)
-    2ND_CLANG_TARGET_GLOBAL_CPPFLAGS += $(qcom_flags)
-
-$(call project-set-path,qcom-audio,hardware/qcom/audio-caf/$(TARGET_BOARD_PLATFORM))
-ifeq ($(USE_DEVICE_SPECIFIC_CAMERA),true)
-$(call project-set-path,qcom-camera,$(TARGET_DEVICE_DIR)/camera)
-else
-$(call qcom-set-path-variant,CAMERA,camera)
-endif
-$(call project-set-path,qcom-display,hardware/qcom/display-caf/$(TARGET_BOARD_PLATFORM))
-$(call qcom-set-path-variant,GPS,gps)
-$(call project-set-path,qcom-media,hardware/qcom/media-caf/$(TARGET_BOARD_PLATFORM))
-$(call qcom-set-path-variant,SENSORS,sensors)
-$(call ril-set-path-variant,ril)
-else
-$(call project-set-path,qcom-audio,hardware/qcom/audio/default)
-$(call qcom-set-path-variant,CAMERA,camera)
-$(call project-set-path,qcom-display,hardware/qcom/display/$(TARGET_BOARD_PLATFORM))
-$(call qcom-set-path-variant,GPS,gps)
-$(call project-set-path,qcom-media,hardware/qcom/media/default)
-$(call qcom-set-path-variant,SENSORS,sensors)
 $(call ril-set-path-variant,ril)
 endif
