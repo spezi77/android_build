@@ -56,7 +56,7 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 else
     # QSD8K doesn't use QCOM_HARDWARE flag
     ifneq ($(filter qsd8k,$(TARGET_BOARD_PLATFORM)),)
-        QCOM_AUDIO_VARIANT := audio-caf/msm8960
+        QCOM_AUDIO_VARIANT := audio-caf
     else
         QCOM_AUDIO_VARIANT := audio
     endif
