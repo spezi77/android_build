@@ -607,6 +607,8 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   script.Print("|              /     |   |   |   |   |   |")
   script.Print("|_____________/      \___^___^___^___^___/")
   script.Print(" ")
+  script.Print(" Android L for your HTC Desire ")
+  script.Print(" homemade by spezi77")
 
   if OPTIONS.wipe_user_data:
     system_progress -= 0.1
