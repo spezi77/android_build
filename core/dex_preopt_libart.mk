@@ -16,17 +16,15 @@ DEX2OAT_DEPENDENCY += $(DEX2OAT)
 DEX2OATD_DEPENDENCY := $(DEX2OAT_DEPENDENCY)
 DEX2OATD_DEPENDENCY += $(DEX2OATD)
 
-# Use the first preloaded-classes file in PRODUCT_COPY_FILES.
-PRELOADED_CLASSES := $(call word-colon,1,$(firstword \
-    $(filter %system/etc/preloaded-classes,$(PRODUCT_COPY_FILES))))
-
-# Use the first compiled-classes file in PRODUCT_COPY_FILES.
-COMPILED_CLASSES := $(call word-colon,1,$(firstword \
-    $(filter %system/etc/compiled-classes,$(PRODUCT_COPY_FILES))))
-
+PRELOADED_CLASSES := frameworks/base/preloaded-classes
 # start of image reserved address space
 LIBART_IMG_HOST_BASE_ADDRESS   := 0x60000000
+
+ifneq ($(LIBART_IMG_BASE),)
+LIBART_IMG_TARGET_BASE_ADDRESS := $(LIBART_IMG_BASE)
+else
 LIBART_IMG_TARGET_BASE_ADDRESS := 0x70000000
+endif
 
 define get-product-default-property
 $(strip $(patsubst $(1)=%,%,$(filter $(1)=%,$(PRODUCT_DEFAULT_PROPERTY_OVERRIDES))))
