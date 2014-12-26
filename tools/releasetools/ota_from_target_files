@@ -614,8 +614,8 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     system_diff.WriteScript(script, output_zip)
   else:
     script.Print("Formatting system")
-    script.FormatPartition("/system")
-    script.Mount("/system", recovery_mount_options)
+    script.AppendExtra('format("yaffs2", "MTD", "system", "0", "/system");')
+    script.AppendExtra('mount("yaffs2", "MTD", "system", "/system", "");')
     #if not has_recovery_patch:
       #script.UnpackPackageDir("recovery", "/system")
     script.Print("Installing Evervolv")
@@ -662,8 +662,8 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
 
-  script.ShowProgress(0.05, 5)
-  script.WriteRawImage("/boot", "boot.img")
+  script.ShowProgress(0.05, 5)  
+  script.AppendExtra('package_extract_file("boot.img", "/tmp/boot.img");write_raw_image("/tmp/boot.img", "boot");')
 
   script.ShowProgress(0.2, 10)
   device_specific.FullOTA_InstallEnd()
