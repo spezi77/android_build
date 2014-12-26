@@ -603,8 +603,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
   system_items = ItemSet("system", "META/filesystem_config.txt")
   script.ShowProgress(system_progress, 0)
 
-  script.FormatPartition("/system")
-  script.Mount("/system")
+  script.AppendExtra('format("yaffs2", "MTD", "system", "0", "/system");')
+  script.AppendExtra('mount("yaffs2", "MTD", "system", "/system", "");')
   script.Print("Installing PA 5.0 for HTC Desire")
   script.Print("Magick by spezi77")
   script.UnpackPackageDir("system", "/system")
@@ -632,8 +632,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
     #script.ShowProgress(0.2, 10)
     #script.RunBackup("restore")
 
-  script.ShowProgress(0.05, 5)
-  script.WriteRawImage("/boot", "boot.img")
+  script.ShowProgress(0.05, 5)  
+  script.AppendExtra('package_extract_file("boot.img", "/tmp/boot.img");write_raw_image("/tmp/boot.img", "boot");')
 
   script.ShowProgress(0.2, 10)
   device_specific.FullOTA_InstallEnd()
