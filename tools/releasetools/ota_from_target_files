@@ -618,7 +618,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
     def output_sink(fn, data):
       system_items.Get("system/" + fn, dir=False)
 
-    if OPTIONS.recovery:
+    #if OPTIONS.recovery:
       #common.MakeRecoveryPatch(OPTIONS.input_tmp, output_sink,
       #                       recovery_img, boot_img)
 
