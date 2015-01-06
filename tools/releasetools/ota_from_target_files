@@ -582,6 +582,18 @@ def WriteFullOTAPackage(input_zip, output_zip):
   if HasVendorPartition(input_zip):
     system_progress -= 0.1
 
+  script.Print("")
+  script.Print("  ___  _____ ___________  ___   ")
+  script.Print(" / _ \|  _  /  ___| ___ \/ _ \  ")
+  script.Print("/ /_\ \ | | \ `--.| |_/ / /_\ \ ")
+  script.Print("|  _  | | | |`--. \  __/|  _  | ")
+  script.Print("| | | \ \_/ /\__/ / |   | | | | ")
+  script.Print("\_| |_/\___/\____/\_|   \_| |_/ ")
+  script.Print("")
+  script.Print("AOSPA 5+ for legacy devices")
+  script.Print("-------------------------------------")
+  script.Print("")
+
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
@@ -603,6 +615,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
     script.Mount("/system", recovery_mount_options)
     if OPTIONS.recovery and not has_recovery_patch:
       script.UnpackPackageDir("recovery", "/system")
+    script.Print("Installing PA 5.0 for HTC Desire")
+    script.Print("Magick by spezi77")
     script.UnpackPackageDir("system", "/system")
     symlinks = CopyPartitionFiles(system_items, input_zip, output_zip)
     script.MakeSymlinks(symlinks)
