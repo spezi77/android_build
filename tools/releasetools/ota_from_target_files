@@ -533,21 +533,21 @@ def WriteFullOTAPackage(input_zip, output_zip):
   # Two-step package strategy (in chronological order, which is *not*
   # the order in which the generated script has things):
   #
-   if stage is not "2/3" or "3/3":
-      write recovery image to boot partition
-      set stage to "2/3"
-      reboot to boot partition and restart recovery
-   else if stage is "2/3":
-      write recovery image to recovery partition
-      set stage to "3/3"
-      reboot to recovery partition and restart recovery
-   else:
-      (stage must be "3/3")
-      set stage to ""
-      do normal full package installation:
-         wipe and install system, boot image, etc.
-         set up system to update recovery partition on first boot
-      complete script normally (allow recovery to mark itself finished and reboot)
+  #if stage is not "2/3" or "3/3":
+    #write recovery image to boot partition
+    #set stage to "2/3"
+    #reboot to boot partition and restart recovery
+  #else if stage is "2/3":
+    #write recovery image to recovery partition
+    #set stage to "3/3"
+    #reboot to recovery partition and restart recovery
+  #else:
+    #(stage must be "3/3")
+    #set stage to ""
+    #do normal full package installation:
+      #wipe and install system, boot image, etc.
+      #set up system to update recovery partition on first boot
+    #complete script normally (allow recovery to mark itself finished and reboot)
 
   if OPTIONS.recovery:
 
