@@ -14,21 +14,32 @@ define loc-api-set-path-variant
 $(call project-set-path-variant,loc-api,TARGET_LOC_API_PATH,$(1))
 endef
 
+# Enable DirectTrack on QCOM legacy boards
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 
-    qcom_flags := -DQCOM_HARDWARE
-    qcom_flags += -DQCOM_BSP
+    TARGET_GLOBAL_CFLAGS += -DQCOM_HARDWARE
+    TARGET_GLOBAL_CPPFLAGS += -DQCOM_HARDWARE
 
-    TARGET_USES_QCOM_BSP := true
+    ifneq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
+        TARGET_USES_QCOM_BSP := true
+        TARGET_GLOBAL_CFLAGS += -DQCOM_BSP
+        TARGET_GLOBAL_CPPFLAGS += -DQCOM_BSP
+    endif
+
     TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
 
     # Enable DirectTrack for legacy targets
     ifneq ($(filter msm7x30 msm8660 msm8960,$(TARGET_BOARD_PLATFORM)),)
         ifeq ($(BOARD_USES_LEGACY_ALSA_AUDIO),true)
-            qcom_flags += -DQCOM_DIRECTTRACK
+        TARGET_GLOBAL_CFLAGS += -DQCOM_DIRECTTRACK
+        TARGET_GLOBAL_CPPFLAGS += -DQCOM_DIRECTTRACK
+    endif
+        ifneq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
+            # Enable legacy graphics functions
+            TARGET_USES_QCOM_BSP_LEGACY := true
+            TARGET_GLOBAL_CFLAGS += -DQCOM_BSP_LEGACY
+            TARGET_GLOBAL_CPPFLAGS += -DQCOM_BSP_LEGACY
         endif
-        # Enable legacy graphics functions
-        qcom_flags += -DQCOM_BSP_LEGACY
     endif
 
     ifneq ($(filter msm8084,$(TARGET_BOARD_PLATFORM)),)
@@ -58,7 +69,7 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 else
     # QSD8K doesn't use QCOM_HARDWARE flag
     ifneq ($(filter qsd8k,$(TARGET_BOARD_PLATFORM)),)
-        QCOM_AUDIO_VARIANT := audio-caf/msm8960
+        QCOM_AUDIO_VARIANT := audio-legacy
     else
         QCOM_AUDIO_VARIANT := audio
     endif
@@ -70,3 +81,15 @@ else
         QCOM_MEDIA_VARIANT := media
     endif
 endif
+
+$(call project-set-path,qcom-audio,hardware/qcom/$(QCOM_AUDIO_VARIANT))
+$(call project-set-path,qcom-display,hardware/qcom/$(QCOM_DISPLAY_VARIANT))
+$(call project-set-path,qcom-media,hardware/qcom/$(QCOM_MEDIA_VARIANT))
+ifeq ($(USE_DEVICE_SPECIFIC_CAMERA),true)
+$(call project-set-path,qcom-camera,$(TARGET_DEVICE_DIR)/camera)
+else
+$(call qcom-set-path-variant,CAMERA,camera)
+endif
+$(call qcom-set-path-variant,GPS,gps)
+$(call qcom-set-path-variant,SENSORS,sensors)
+$(call ril-set-path-variant,ril)
