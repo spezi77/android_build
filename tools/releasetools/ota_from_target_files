@@ -601,6 +601,22 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   script.ValidateSignatures("data")
   script.Unmount("/data")
   script.AppendExtra("endif;")
+  
+  script.Print(" ( ");
+  script.Print(" )\ )     (  ( ");
+  script.Print("(()/(     )\ )\( ");
+  script.Print(" /(_)) ( ((_|(_)\ `  )   (  `  ) ");
+  script.Print("(_))   )\ _  _((_)/(/(   )\ /(/( ");
+  script.Print("| |   ((_) || |(_|(_)_\ ((_|(_)_\ ");
+  script.Print("| |__/ _ \ || || | '_ \) _ \ '_ \) ");
+  script.Print("|____\___/_||_||_| .__/\___/ .__/ ");
+  script.Print("                 |_|        |_| ");
+  script.Print("");
+  script.Print("-----------------------------------------");
+  script.Print(" Android 5.0 for your HTC Desire");
+  script.Print(" CM-12.0 UNOFFICIAL kanged by spezi77");
+  script.Print("-----------------------------------------");
+  script.Print("");
 
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
