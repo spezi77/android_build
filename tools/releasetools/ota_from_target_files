@@ -685,6 +685,9 @@ def WriteFullOTAPackage(input_zip, output_zip):
     #if block_based:
       #script.Unmount("/system")
 
+  # Wipe dalvik-cache on NAND
+  script.FormatPartition("/dataint")
+
   script.ShowProgress(0.05, 5)
   script.WriteRawImage("/boot", "boot.img")
 
