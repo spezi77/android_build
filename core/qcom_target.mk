@@ -60,7 +60,6 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
             QCOM_MEDIA_VARIANT := media-caf/msm8960
         endif
     endif
-    $(call ril-set-path-variant,ril)
 else
     # QSD8K doesn't use QCOM_HARDWARE flag
     ifneq ($(filter qsd8k,$(TARGET_BOARD_PLATFORM)),)
@@ -88,4 +87,3 @@ endif
 $(call qcom-set-path-variant,GPS,gps)
 $(call qcom-set-path-variant,SENSORS,sensors)
 $(call ril-set-path-variant,ril)
-
