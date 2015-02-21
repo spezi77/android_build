@@ -520,7 +520,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
       info_dict=OPTIONS.info_dict)
 
   has_recovery_patch = HasRecoveryPatch(input_zip)
-  block_based = OPTIONS.block_based and has_recovery_patch
+  block_based = OPTIONS.block_based
 
   #if not OPTIONS.omit_prereq:
   #  ts = GetBuildProp("ro.build.date.utc", OPTIONS.info_dict)
@@ -571,19 +571,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
   else if get_stage("%(bcb_dev)s") == "3/3" then
   """ % bcb_dev)
 
+  script.AppendExtra("ifelse(is_mounted(\"/system\"), unmount(\"/system\"));")
   device_specific.FullOTA_InstallBegin()
-
-  #if OPTIONS.backuptool:
-    #if block_based:
-      #common.ZipWriteStr(output_zip, "system/bin/backuptool.sh",
-                     #""+input_zip.read("SYSTEM/bin/backuptool.sh"))
-      #common.ZipWriteStr(output_zip, "system/bin/backuptool.functions",
-                     #""+input_zip.read("SYSTEM/bin/backuptool.functions"))
-    #script.AppendExtra("if ! is_mounted(\"/system\") then")
-    #script.Mount("/system")
-    #script.AppendExtra("endif;")
-    #script.RunBackup("backup")
-    #script.Unmount("/system")
 
   system_progress = 0.75
 
@@ -714,6 +703,9 @@ endif;
 """ % bcb_dev)
   script.AddToZip(input_zip, output_zip, input_path=OPTIONS.updater_binary)
   WriteMetadata(metadata, output_zip)
+
+  common.ZipWriteStr(output_zip, "system/build.prop",
+                     ""+input_zip.read("SYSTEM/build.prop"))
 
   common.ZipWriteStr(output_zip, "META-INF/co/paranoidandroid/releasekey",
                      ""+input_zip.read("META/releasekey.txt"))

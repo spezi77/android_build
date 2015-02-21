@@ -8,11 +8,10 @@ define ril-set-path-variant
 $(call project-set-path-variant,ril,TARGET_RIL_VARIANT,hardware/$(1))
 endef
 
-# Enable DirectTrack on QCOM legacy boards
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 
-    TARGET_GLOBAL_CFLAGS += -DQCOM_HARDWARE
-    TARGET_GLOBAL_CPPFLAGS += -DQCOM_HARDWARE
+    qcom_flags := -DQCOM_HARDWARE
+    qcom_flags += -DQCOM_BSP
 
     ifneq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
         TARGET_USES_QCOM_BSP := true

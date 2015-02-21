@@ -31,12 +31,14 @@ import textwrap
 
 try:
   # For python3
+  import urllib.error
   import urllib.request
 except ImportError:
   # For python2
   import imp
   import urllib2
   urllib = imp.new_module('urllib')
+  urllib.error = urllib2
   urllib.request = urllib2
 
 # Parse the command line
@@ -64,6 +66,7 @@ parser.add_argument('-b', '--auto-branch', action='store_true', help='shortcut t
 parser.add_argument('-q', '--quiet', action='store_true', help='print as little as possible')
 parser.add_argument('-v', '--verbose', action='store_true', help='print extra information to aid in debug')
 parser.add_argument('-t', '--topic', help='pick all commits from a specified topic')
+parser.add_argument('-Q', '--query', help='pick all commits using the specified query')
 args = parser.parse_args()
 if args.start_branch == None and args.abandon_first:
     parser.error('if --abandon-first is set, you must also give the branch name with --start-branch')
@@ -74,10 +77,13 @@ if args.auto_branch:
         args.start_branch = ['auto']
 if args.quiet and args.verbose:
     parser.error('--quiet and --verbose cannot be specified together')
-if len(args.change_number) > 0 and args.topic:
-    parser.error('cannot specify a topic and change number(s) together')
-if len(args.change_number) == 0 and not args.topic:
-    parser.error('must specify at least one commit id or a topic')
+if len(args.change_number) > 0:
+    if args.topic or args.query:
+        parser.error('cannot specify a topic (or query) and change number(s) together')
+if args.topic and args.query:
+    parser.error('cannot specify a topic and a query together')
+if len(args.change_number) == 0 and not args.topic and not args.query:
+    parser.error('must specify at least one commit id or a topic or a query')
 
 # Helper function to determine whether a path is an executable file
 def is_exe(fpath):
@@ -178,11 +184,11 @@ while(True):
     ppaths = re.split('\s*:\s*', pline.decode())
     project_name_to_path[ppaths[1]] = ppaths[0]
 
-# Get all commits for a specified topic
-if args.topic:
-    url = 'http://review.cyanogenmod.org/changes/?q=topic:%s' % args.topic
+# Get all commits for a specified query
+def fetch_query(query):
+    url = 'http://review.cyanogenmod.org/changes/?q=%s' % query
     if args.verbose:
-        print('Fetching all commits from topic: %s\n' % args.topic)
+        print('Fetching all commits using query: %s\n' % query)
     f = urllib.request.urlopen(url)
     d = f.read().decode("utf-8")
     if args.verbose:
@@ -192,7 +198,7 @@ if args.topic:
     d = d.split(')]}\'\n')[1]
     matchObj = re.match(r'\[\s*\]', d)
     if matchObj:
-        sys.stderr.write('ERROR: Topic %s was not found on the server\n' % args.topic)
+        sys.stderr.write('ERROR: Query %s was not found on the server\n' % query)
         sys.exit(1)
     d = re.sub(r'\[(.*)\]', r'\1', d)
     if args.verbose:
@@ -205,6 +211,12 @@ if args.topic:
 
     # Reverse the array as we want to pick the lowest one first
     args.change_number = reversed(changelist)
+
+if args.topic:
+    fetch_query("topic:{0}".format(args.topic))
+
+if args.query:
+    fetch_query(args.query)
 
 # Check for range of commits and rebuild array
 changelist = []
@@ -232,7 +244,11 @@ for change in args.change_number:
     url = 'http://gerrit.aospal.com/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
     if args.verbose:
         print('Fetching from: %s\n' % url)
-    f = urllib.request.urlopen(url)
+    try:
+        f = urllib.request.urlopen(url)
+    except urllib.error.URLError:
+        sys.stderr.write('ERROR: Server reported an error, or cannot be reached\n')
+        sys.exit(1)
     d = f.read().decode("utf-8")
     if args.verbose:
         print('Result from request:\n' + d)
