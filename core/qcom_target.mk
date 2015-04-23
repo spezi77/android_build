@@ -24,9 +24,10 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 
     # Enable DirectTrack for legacy targets
     ifneq ($(filter caf caf-bfam legacy,$(TARGET_QCOM_AUDIO_VARIANT)),)
-        TARGET_GLOBAL_CFLAGS += -DQCOM_DIRECTTRACK
-        TARGET_GLOBAL_CPPFLAGS += -DQCOM_DIRECTTRACK
-    endif
+        ifeq ($(BOARD_USES_LEGACY_ALSA_AUDIO),true)
+            TARGET_GLOBAL_CFLAGS += -DQCOM_DIRECTTRACK
+            TARGET_GLOBAL_CPPFLAGS += -DQCOM_DIRECTTRACK
+        endif
         ifneq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
             # Enable legacy graphics functions
             TARGET_USES_QCOM_BSP_LEGACY := true
@@ -59,7 +60,6 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
             QCOM_MEDIA_VARIANT := media-caf/msm8960
         endif
     endif
-    $(call ril-set-path-variant,ril)
 else
     # QSD8K doesn't use QCOM_HARDWARE flag
     ifneq ($(filter qsd8k,$(TARGET_BOARD_PLATFORM)),)
