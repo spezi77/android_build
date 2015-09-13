@@ -528,6 +528,23 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
+  script.Print("");
+  script.Print("     )             )           )         ");
+  script.Print("  ( /(       )  ( /(  (     ( /( (       ");
+  script.Print("  )\())(  ( /(  )\()) )\    )\()))\ )    ");
+  script.Print(" ((_)\ )\ )\())((_)((((_)( ((_)\(()/(    ");
+  script.Print("(_(((_)(_)_))/(_)((_)\ _ )\ _((_)/(_))_  ");
+  script.Print("| |/ / (_) |_ | |/ /(_)_\(_) \| (_)) __| ");
+  script.Print("| ' <  | |  _|| ' <  / _ \ | .` | | (_ | ");
+  script.Print("|_|\_\ |_|\__||_|\_\/_/ \_\|_|\_|  \___| ");
+  script.Print("");                                         
+  script.Print("-----------------------------------------");
+  script.Print(" Android 4.4.4 for your neXus 4");
+  script.Print(" CM-11 UNOFFICIAL kanged by spezi77");
+  script.Print("-----------------------------------------");  
+  script.Print("");
+  script.Print("Installing KitKANG");
+
   script.FormatPartition("/system")
   script.Mount("/system")
   if not OPTIONS.no_separate_recovery:
