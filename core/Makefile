@@ -215,6 +215,8 @@ $(INSTALLED_BUILD_PROP_TARGET): $(BUILDINFO_SH) $(INTERNAL_BUILD_ID_MAKEFILE) $(
 			BUILD_DISPLAY_ID="$(BUILD_DISPLAY_ID)" \
 			BUILD_NUMBER="$(BUILD_NUMBER)" \
 			PLATFORM_VERSION="$(PLATFORM_VERSION)" \
+			PLATFORM_SECURITY_PATCH="$(PLATFORM_SECURITY_PATCH)" \
+			PLATFORM_BASE_OS="$(PLATFORM_BASE_OS)" \
 			PLATFORM_SDK_VERSION="$(PLATFORM_SDK_VERSION)" \
 			PLATFORM_VERSION_CODENAME="$(PLATFORM_VERSION_CODENAME)" \
 			BUILD_VERSION_TAGS="$(BUILD_VERSION_TAGS)" \
@@ -694,7 +696,12 @@ recovery_binary := $(call intermediates-dir-for,EXECUTABLES,recovery)/recovery
 recovery_resources_common := $(call project-path-for,recovery)/res
 recovery_resources_extra := $(call project-path-for,recovery)/res-$(TARGET_RECOVERY_SCREEN_WIDTH)
 recovery_resources_private := $(strip $(wildcard $(TARGET_DEVICE_DIR)/recovery/res))
+ifneq ($(TARGET_RECOVERY_DEVICE_DIRS),)
+recovery_root_private := $(strip \
+    $(foreach d,$(TARGET_RECOVERY_DEVICE_DIRS), $(wildcard $(d)/recovery/root)))
+else
 recovery_root_private := $(strip $(wildcard $(TARGET_DEVICE_DIR)/recovery/root))
+endif
 recovery_resource_deps := $(shell find $(recovery_resources_common) $(recovery_resources_extra) \
   $(recovery_resources_private) $(recovery_root_private) -type f)
 ifneq ($(TARGET_RECOVERY_FSTAB),)
@@ -1543,6 +1550,36 @@ $(INTERNAL_UPDATE_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 
 .PHONY: updatepackage
 updatepackage: $(INTERNAL_UPDATE_PACKAGE_TARGET)
+
+# -----------------------------------------------------------------
+# The factory package
+
+name := $(TARGET_PRODUCT)-factory-$(FILE_NAME_TAG)
+
+INTERNAL_FACTORY_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
+
+ifeq ($(TARGET_RELEASETOOLS_EXTENSIONS),)
+# default to common dir for device vendor
+$(INTERNAL_FACTORY_PACKAGE_TARGET): extensions := $(TARGET_DEVICE_DIR)/../common
+else
+$(INTERNAL_FACTORY_PACKAGE_TARGET): extensions := $(TARGET_RELEASETOOLS_EXTENSIONS)
+endif
+
+$(INTERNAL_FACTORY_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
+	@echo -e ${CL_YLW}"Package:"${CL_RST}" $@"
+	if [ -z $(TARGET_RELEASETOOL_FACTORY_FROM_TARGET_SCRIPT) ]; then \
+          echo "Error: Factory script is not defined by target"; \
+          exit 1; \
+	fi
+	MKBOOTIMG=$(BOARD_CUSTOM_BOOTIMG_MK) \
+	$(TARGET_RELEASETOOL_FACTORY_FROM_TARGET_SCRIPT) -v \
+	   -s $(extensions) \
+	   -p $(HOST_OUT) \
+	   $(BUILT_TARGET_FILES_PACKAGE) $@
+
+.PHONY: factorypackage
+factorypackage: $(INTERNAL_FACTORY_PACKAGE_TARGET)
+
 
 endif    # recovery_fstab is defined
 endif    # TARGET_NO_KERNEL != true
