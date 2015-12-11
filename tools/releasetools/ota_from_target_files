@@ -539,7 +539,10 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   device = GetBuildProp("ro.product.device", OPTIONS.info_dict)
   model = GetBuildProp("ro.product.model", OPTIONS.info_dict)
   script.Print("*   Device: %s (%s)"%(model, device));
+  script.Print("*   Maintainer: spezi77");
   script.Print("******************************************");
+  script.Print("");
+  script.Print("Installing...");
 
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
@@ -549,6 +552,10 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   if not OPTIONS.no_separate_recovery:
     script.UnpackPackageDir("recovery", "/system")
   script.UnpackPackageDir("system", "/system")
+
+  #Unpack extra apps to Userdata
+  script.Mount("/data")
+  script.UnpackPackageDir("data", "/data")
 
   symlinks = CopySystemFiles(input_zip, output_zip)
   script.MakeSymlinks(symlinks)
@@ -560,6 +567,10 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
 
   Item.GetMetadata(input_zip)
   Item.Get("system").SetPermissions(script)
+
+  #Set permissions for all extra apps on Userdata
+  script.SetPermissionsRecursive("/data", 0, 0, 0771, 0644, "u:object_r:system_file:s0", "0x0")
+  script.SetPermissionsRecursive("/data/app", 0, 0, 0771, 0644, "u:object_r:system_file:s0", "0x0")
 
   common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
