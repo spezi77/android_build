@@ -103,12 +103,32 @@ endif # AOSP_VARIANT_MAKEFILE
 
 else
 
-$(call project-set-path,qcom-audio,hardware/qcom/audio/default)
-$(call project-set-path,qcom-display,hardware/qcom/display/$(TARGET_BOARD_PLATFORM))
-$(call project-set-path,qcom-media,hardware/qcom/media/default)
+# QSD8K doesn't use QCOM_HARDWARE flag
+ifneq ($(filter qsd8k,$(TARGET_BOARD_PLATFORM)),)
+    QCOM_AUDIO_VARIANT := audio-legacy
+    QCOM_GPS_VARIANT := gps-legacy
+else
+    QCOM_AUDIO_VARIANT := audio
+    QCOM_GPS_VARIANT := gps
+endif
+ifeq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
+    QCOM_DISPLAY_VARIANT := display-legacy
+    QCOM_MEDIA_VARIANT := media-legacy
+else
+    QCOM_DISPLAY_VARIANT := display
+    QCOM_MEDIA_VARIANT := media
+endif
 
-$(call project-set-path,qcom-camera,hardware/qcom/camera)
-$(call project-set-path,qcom-gps,hardware/qcom/gps)
+$(call project-set-path,qcom-audio,hardware/qcom/$(QCOM_AUDIO_VARIANT))
+$(call project-set-path,qcom-display,hardware/qcom/$(QCOM_DISPLAY_VARIANT))
+$(call project-set-path,qcom-media,hardware/qcom/$(QCOM_MEDIA_VARIANT))
+
+ifeq ($(USE_DEVICE_SPECIFIC_CAMERA),true)
+    $(call project-set-path,qcom-camera,$(TARGET_DEVICE_DIR)/camera)
+else
+    $(call project-set-path,CAMERA,hardware/qcom/camera)
+endif
+$(call project-set-path,GPS,QCOM_GPS_VARIANT)
 $(call project-set-path,qcom-sensors,hardware/qcom/sensors)
 $(call project-set-path,qcom-loc-api,vendor/qcom/opensource/location)
 $(call project-set-path,qcom-dataservices,$(TARGET_DEVICE_DIR)/dataservices)
