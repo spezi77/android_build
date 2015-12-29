@@ -905,11 +905,6 @@ recovery_fstab := $(TARGET_RECOVERY_FSTAB)
 else
 recovery_fstab := $(strip $(wildcard $(TARGET_DEVICE_DIR)/recovery.fstab))
 endif
-# Named '.dat' so we don't attempt to use imgdiff for patching it.
-RECOVERY_RESOURCE_ZIP := $(TARGET_OUT)/etc/recovery-resource.dat
-ifdef TARGET_NEEDS_RECOVERY_PATCH_INSTALL
-  RECOVERY_PATCH_INSTALL := $(TARGET_OUT)/bin/install-recovery.sh
-endif
 
 ifeq ($(recovery_resources_private),)
   $(info No private recovery resources for TARGET_DEVICE $(TARGET_DEVICE))
