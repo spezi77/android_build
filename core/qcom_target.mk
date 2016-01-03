@@ -64,9 +64,9 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
         endif
     endif
 
-$(call project-set-path,qcom-audio,hardware/qcom/audio-caf/$(TARGET_BOARD_PLATFORM))
-$(call project-set-path,qcom-display,hardware/qcom/display-caf/$(TARGET_BOARD_PLATFORM))
-$(call project-set-path,qcom-media,hardware/qcom/media-caf/$(TARGET_BOARD_PLATFORM))
+$(call project-set-path,qcom-audio,hardware/qcom/audio-caf/$(QCOM_HARDWARE_VARIANT))
+$(call project-set-path,qcom-display,hardware/qcom/display-caf/$(QCOM_HARDWARE_VARIANT))
+$(call project-set-path,qcom-media,hardware/qcom/media-caf/$(QCOM_HARDWARE_VARIANT))
 
 $(call set-device-specific-path,CAMERA,camera,hardware/qcom/camera)
 $(call set-device-specific-path,GPS,gps,hardware/qcom/gps)
