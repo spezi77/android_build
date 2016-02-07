@@ -954,9 +954,6 @@ else
         build/target/product/security/cm-devkey
 endif
 
-# ArchiDroid
-include $(BUILD_SYSTEM)/archidroid.mk
-
 # Generate a file containing the keys that will be read by the
 # recovery binary.
 RECOVERY_INSTALL_OTA_KEYS := \
