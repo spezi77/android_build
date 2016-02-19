@@ -84,7 +84,7 @@ $(info   CLANG_O3=false)
 endif
 ifeq ($(TARGET_DRAGONTC_VERSION),)
 else
-$(info   CLANG_VERSION=$(TARGET_DRAGONTC_VERSION))
+$(info   CLANG_VERSION=$(DTC_VER))
 endif
 ifdef    STRICT_ALIASING
 $(info   STRICT_ALIASING=$(STRICT_ALIASING))
