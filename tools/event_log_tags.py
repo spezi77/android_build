@@ -15,7 +15,6 @@
 """A module for reading and parsing event-log-tags files."""
 
 from __future__ import print_function
-
 import re
 import sys
 
@@ -66,6 +65,8 @@ class TagFile(object):
         self.linenum += 1
 
         line = line.strip()
+        if sys.version_info[0] >= 3:
+          line = str(line, "utf-8")
         if not line or line[0] == '#': continue
         parts = re.split(r"\s+", line, 2)
 
@@ -122,7 +123,7 @@ def WriteOutput(output_file, data):
   """Write 'data' to the given output filename (which may be None to
   indicate stdout).  Emit an error message and die on any failure.
   'data' may be a string or a StringIO object."""
-  if not isinstance(data, str):
+  if not isinstance(data, str) and not isinstance(data, bytes):
     data = data.getvalue()
   try:
     if output_file is None:
@@ -130,7 +131,13 @@ def WriteOutput(output_file, data):
       output_file = "<stdout>"
     else:
       out = open(output_file, "wb")
-    out.write(data)
+    if isinstance(data, bytes):
+      out.write(data)
+    else:
+      if sys.version_info[0] < 3:
+        out.write(str(data))
+      else:
+        out.write(str(data, "utf-8"))
     out.close()
   except (IOError, OSError) as e:
     print("failed to write %s: %s" % (output_file, e), file=sys.stderr)
