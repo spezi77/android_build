@@ -25,7 +25,8 @@ and fails if they do.
 """
 
 from __future__ import print_function
-
+from six import iteritems
+from io import StringIO
 import getopt
 try:
   import hashlib
@@ -173,8 +174,8 @@ for name, t in sorted(iteritems(by_tagname)):
       try:
         t.tagnum = pre_merged_tags[t.tagname]
       except KeyError:
-        print("Error: Tag number not defined for tag `%s'."
-              " Have you done a full build?" % t.tagname, file=sys.stderr)
+        print(("Error: Tag number not defined for tag `%s'."
+            +" Have you done a full build?") % t.tagname, file=sys.stderr)
         sys.exit(1)
     else:
       while True:
@@ -190,8 +191,11 @@ for name, t in sorted(iteritems(by_tagname)):
 buffer = StringIO()
 for n, t in sorted(iteritems(by_tagnum)):
   if t.description:
-    buffer.write("%d %s %s\n" % (t.tagnum, t.tagname, t.description))
+    buffer.write("%d %s %s\n" % (t.tagnum, unicode(t.tagname), unicode(t.description)))
   else:
-    buffer.write("%d %s\n" % (t.tagnum, t.tagname))
+    buffer.write("%d %s\n" % (t.tagnum, unicode(t.tagname)))
+
+if sys.version_info[0] >= 3:
+  buffer=bytes(buffer.getvalue(), 'utf-8')
 
 event_log_tags.WriteOutput(output_file, buffer)
