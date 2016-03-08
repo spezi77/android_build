@@ -18,23 +18,20 @@ POLLY := -mllvm -polly \
   -mllvm -polly-parallel-force \
   -mllvm -polly-allow-nonaffine=1\
   -mllvm -polly-ast-detect-parallel \
+  -mllvm -polly-no-early-exit \
   -mllvm -polly-vectorizer=polly \
   -mllvm -polly-opt-fusion=max \
   -mllvm -polly-opt-maximize-bands=yes \
   -mllvm -polly-run-dce
 
 # Enable version specific Polly flags.
-ifeq ($(LLVM_PREBUILTS_VERSION),3.7)
-  POLLY += -mllvm -polly-no-early-exit
-endif
-
-ifeq ($(filter $(LLVM_PREBUILTS_VERSION), 3.8 3.9),)
+ifeq ($(LLVM_PREBUILTS_VERSION),3.8)
   POLLY += -mllvm -polly-position=after-loopopt
 endif
 
 # Disable modules that don't work with DragonTC. Split up by arch.
-DISABLE_DTC_arm := libm
-DISABLE_DTC_arm64 := libm
+DISABLE_DTC_arm :=
+DISABLE_DTC_arm64 :=
 
 # Set DISABLE_DTC based on arch
 DISABLE_DTC := \
@@ -51,47 +48,22 @@ ENABLE_DTC := \
   $(LOCAL_ENABLE_DTC)
 
 # Disable modules that dont work with Polly. Split up by arch.
-DISABLE_POLLY_arm :=
-
+DISABLE_POLLY_arm := 
 DISABLE_POLLY_arm64 := \
   libpng \
   libfuse \
-  libLLVMAsmParser \
-  libLLVMBitReader \
-  libLLVMCodeGen \
-  libLLVMInstCombine \
-  libLLVMMCParser \
-  libLLVMSupport \
-  libLLVMSelectionDAG \
-  libLLVMTransformUtils \
-  libF77blas \
-  libbccSupport \
-  libblas \
-  libRS \
-  libstagefright_mpeg2ts \
-  bcc_strip_attr
-
-ifeq ($(LLVM_PREBUILTS_VERSION),3.8 3.9)
-  DISABLE_POLLY_arm64 += \
-	libLLVMARMCodeGen \
-	libLLVMAnalysis \
-	libLLVMScalarOpts \
-	libLLVMCore \
-	libLLVMInstrumentation \
-	libLLVMipo \
-	libLLVMMC \
-	libLLVMSupport \
-	libLLVMTransformObjCARC \
-	libLLVMVectorize \
-	libgui \
-	libvixl
-endif
+  libfuse_static 
 
 # Set DISABLE_POLLY based on arch
 DISABLE_POLLY := \
   $(DISABLE_POLLY_$(TARGET_ARCH)) \
   $(DISABLE_DTC) \
   $(LOCAL_DISABLE_POLLY)
+
+# Include ARM Mode if requested
+ifeq ($(USE_ARM_MODE),true)
+  include $(BUILD_SYSTEM)/arm.mk
+endif
 
 # Make sure that the current module is not blacklisted. Polly is not
 # used on host modules to reduce build time and unnecessary hassle.
