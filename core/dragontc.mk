@@ -59,6 +59,11 @@ DISABLE_POLLY := \
   $(DISABLE_POLLY_$(TARGET_ARCH)) \
   $(DISABLE_DTC) \
   $(LOCAL_DISABLE_POLLY)
+  
+# Include ARM Mode if requested
+ifeq ($(USE_ARM_MODE),true)
+  include $(BUILD_SYSTEM)/arm.mk
+endif
 
 # Include ARM Mode if requested
 ifeq ($(USE_ARM_MODE),true)
