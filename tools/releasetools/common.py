@@ -1488,10 +1488,9 @@ fi
           sh_location = m.group(1)
           found = True
           break
-
     if found:
-      break
+        break
 
-  print("putting script in %s" % sh_location)
+  print("putting script in", sh_location)
 
   output_sink(sh_location, sh)
