@@ -30,8 +30,11 @@ ifeq ($(LLVM_PREBUILTS_VERSION),3.8)
 endif
 
 # Disable modules that don't work with DragonTC. Split up by arch.
-DISABLE_DTC_arm :=
-DISABLE_DTC_arm64 :=
+DISABLE_DTC_arm := \
+ libc++abi
+
+DISABLE_DTC_arm64 := \
+ libc++abi
 
 # Set DISABLE_DTC based on arch
 DISABLE_DTC := \
