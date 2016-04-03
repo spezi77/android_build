@@ -19,3 +19,18 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
         endif
     endif
 endif
+
+# Populate the qcom hardware variants in the project pathmap.
+define qcom-set-path-variant
+$(call project-set-path-variant,qcom-$(2),TARGET_QCOM_$(1)_VARIANT,hardware/qcom/$(2))
+endef
+$(call qcom-set-path-variant,AUDIO,audio)
+ifeq ($(USE_DEVICE_SPECIFIC_CAMERA),true)
+$(call project-set-path,qcom-camera,$(TARGET_DEVICE_DIR)/camera)
+else
+$(call qcom-set-path-variant,CAMERA,camera)
+endif
+$(call qcom-set-path-variant,DISPLAY,display)
+$(call qcom-set-path-variant,GPS,gps)
+$(call qcom-set-path-variant,MEDIA,media)
+$(call qcom-set-path-variant,SENSORS,sensors)
