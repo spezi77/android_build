@@ -109,7 +109,6 @@ ifeq (1,$(words $(filter 3.8 3.9,$(LLVM_PREBUILTS_VERSION))))
 	libvterm \
 	libxml2
 endif
->>>>>>> 05a70c7... DragonTC: Update polly flags for arm64 only right now
 
 # Set DISABLE_POLLY based on arch
 DISABLE_POLLY := \
