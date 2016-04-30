@@ -37,6 +37,7 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
         qcom_flags += -DQCOM_BSP_LEGACY
         # Enable legacy audio functions
         ifeq ($(BOARD_USES_LEGACY_ALSA_AUDIO),true)
+            USE_CUSTOM_AUDIO_POLICY := 1
             qcom_flags += -DLEGACY_ALSA_AUDIO
         endif
     endif
@@ -68,6 +69,21 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
         endif
     endif
 
+# HACK: check to see if build uses standard QC HAL paths by checking for CM path structure
+AOSP_VARIANT_MAKEFILE := $(wildcard hardware/qcom/audio/default/Android.mk)
+ifeq ("$(AOSP_VARIANT_MAKEFILE)","")
+$(call project-set-path,qcom-audio,hardware/qcom/audio)
+$(call project-set-path,qcom-display,hardware/qcom/display)
+$(call project-set-path,qcom-media,hardware/qcom/media)
+$(call set-device-specific-path,CAMERA,camera,hardware/qcom/camera)
+$(call set-device-specific-path,GPS,gps,hardware/qcom/gps)
+$(call set-device-specific-path,SENSORS,sensors,hardware/qcom/sensors)
+$(call set-device-specific-path,LOC_API,loc-api,vendor/qcom/opensource/location)
+$(call set-device-specific-path,DATASERVICES,dataservices,vendor/qcom/opensource/dataservices)
+$(call project-set-path,ril,hardware/ril)
+$(call project-set-path,wlan,hardware/qcom/wlan)
+$(call project-set-path,bt-vendor,hardware/qcom/bt)
+else
 $(call project-set-path,qcom-audio,hardware/qcom/audio-caf/$(QCOM_HARDWARE_VARIANT))
 
 ifeq ($(SONY_BF64_KERNEL_VARIANT),true)
@@ -87,6 +103,7 @@ $(call set-device-specific-path,DATASERVICES,dataservices,vendor/qcom/opensource
 $(call ril-set-path-variant,ril)
 $(call wlan-set-path-variant,wlan-caf)
 $(call bt-vendor-set-path-variant,bt-caf)
+endif # AOSP_VARIANT_MAKEFILE
 
 else
 

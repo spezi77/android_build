@@ -865,7 +865,6 @@ function mm()
         local M=$(findmakefile)
         local MODULES=
         local GET_INSTALL_PATH=
-        local ARGS=
         # Remove the path to top as the makefilepath needs to be relative
         local M=`echo $M|sed 's:'$T'/::'`
         if [ ! "$T" ]; then
@@ -882,12 +881,12 @@ function mm()
             done
             if [ -n "$GET_INSTALL_PATH" ]; then
               MODULES=
-              ARGS=GET-INSTALL-PATH
+              # set all args to 'GET-INSTALL-PATH'
+              set -- GET-INSTALL-PATH
             else
               MODULES=all_modules
-              ARGS=$@
             fi
-            ONE_SHOT_MAKEFILE=$M $DRV make -C $T -f build/core/main.mk $MODULES $ARGS
+            ONE_SHOT_MAKEFILE=$M $DRV make -C $T -f build/core/main.mk $MODULES "$@"
         fi
     fi
 }
@@ -2405,7 +2404,7 @@ function set_java_home() {
               export JAVA_HOME=$(/usr/libexec/java_home -v 1.7)
               ;;
           *)
-              export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+              export JAVA_HOME=$(dirname $(dirname $(dirname $(readlink -f $(which java)))))
               ;;
       esac
 
