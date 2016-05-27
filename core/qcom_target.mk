@@ -56,10 +56,14 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
         ifneq ($(filter msm8909 msm8916,$(TARGET_BOARD_PLATFORM)),)
             QCOM_HARDWARE_VARIANT := msm8916
         else
+        ifneq ($(filter msm8953 msm8937,$(TARGET_BOARD_PLATFORM)),)
+            QCOM_HARDWARE_VARIANT := msm8937
+        else
         ifneq ($(filter msm8992 msm8994,$(TARGET_BOARD_PLATFORM)),)
             QCOM_HARDWARE_VARIANT := msm8994
         else
             QCOM_HARDWARE_VARIANT := $(TARGET_BOARD_PLATFORM)
+        endif
         endif
         endif
         endif
@@ -78,7 +82,7 @@ $(call set-device-specific-path,LOC_API,loc-api,vendor/qcom/opensource/location)
 $(call set-device-specific-path,DATASERVICES,dataservices,vendor/qcom/opensource/dataservices)
 $(call project-set-path,ril,hardware/ril)
 $(call project-set-path,wlan,hardware/qcom/wlan)
-$(call project-set-path,bt,hardware/qcom/bt)
+$(call project-set-path,bt-vendor,hardware/qcom/bt)
 else
 $(call project-set-path,qcom-audio,hardware/qcom/audio-caf/$(QCOM_HARDWARE_VARIANT))
 
