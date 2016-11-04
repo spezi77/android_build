@@ -129,15 +129,15 @@ ifeq ($(FORCE_ARM_DEBUGGING),true)
   TARGET_thumb_CFLAGS += -marm -fno-omit-frame-pointer -fstrict-aliasing
 endif
 
-android_config_h := $(call select-android-config-h,linux-arm)
-
 ifeq ($(TARGET_DISABLE_ARM_PIE),true)
    PIE_GLOBAL_CFLAGS :=
-   PIE_EXECUTABLE_TRANSFORM := -Wl,-T,$(BUILD_SYSTEM)/armelf.x
+   PIE_EXECUTABLE_TRANSFORM :=
 else
    PIE_GLOBAL_CFLAGS := -fPIE
    PIE_EXECUTABLE_TRANSFORM := -fPIE -pie
 endif
+
+android_config_h := $(call select-android-config-h,linux-arm)
 
 TARGET_GLOBAL_CFLAGS += \
 			-msoft-float -fpic $(PIE_GLOBAL_CFLAGS) \
@@ -191,7 +191,7 @@ TARGET_GLOBAL_CFLAGS += -mthumb-interwork -fstrict-aliasing
 TARGET_GLOBAL_CPPFLAGS += -fvisibility-inlines-hidden -fstrict-aliasing
 
 # More flags/options can be added here
-TARGET_RELEASE_CFLAGS := \
+TARGET_RELEASE_CFLAGS += \
 			-DNDEBUG \
 			-g \
 			-Wstrict-aliasing=3 \
