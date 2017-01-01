@@ -24,7 +24,7 @@ endef
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 
     qcom_flags := -DQCOM_HARDWARE
-    ifneq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
+    ifeq ($(filter qsd8k,$(TARGET_BOARD_PLATFORM)),)
         qcom_flags += -DQCOM_BSP
         qcom_flags += -DQTI_BSP
 
